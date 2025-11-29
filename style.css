@@ -1,0 +1,22 @@
+/* style.css */
+
+body {
+    font-family: Arial;
+    padding: 30px;
+}
+
+input, select {
+    margin: 5px;
+}
+
+#result {
+    margin-top: 20px;
+    white-space: pre-wrap;
+}
+
+/* You can add more styling below */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forge Calculator</title>
-    <style>
-        body { font-family: Arial; padding: 30px; }
-        input, select { margin: 5px; }
-        #result { margin-top: 20px; white-space: pre-wrap; }
-    </style>
-</head>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Forge Calculator</title>
+        <link rel="stylesheet" href="style.css"> <!-- Link to external CSS -->
+    </head>
+
 <body>
     <h1>Forge Calculator</h1>
 
@@ -71,14 +71,14 @@
             return totalCount === 0 ? 0 : totalMultiplier / totalCount;
         }
 
-        function getItemChancesWithTraits(selectedOres, craftType="Weapon") {
+        function getItemChancesWithTraits(selectedOres, craftType = "Weapon") {
             const oddsDict = craftType === "Weapon" ? weaponOdds : armorOdds;
 
             // Combined multiplier
             const combinedMultiplier = calculateCombinedMultiplier(selectedOres);
 
             // Total count
-            const totalCount = Object.values(selectedOres).reduce((a,b)=>a+b,0);
+            const totalCount = Object.values(selectedOres).reduce((a, b) => a + b, 0);
             const MAX_ODDS_ORE_COUNT = 55;
             const oddsKey = totalCount > MAX_ODDS_ORE_COUNT ? MAX_ODDS_ORE_COUNT : totalCount;
             const odds = oddsDict[oddsKey] || oddsDict[Math.max(...Object.keys(oddsDict))];
@@ -100,13 +100,13 @@
             }
 
             // Craft rarity
-            const highestOre = Object.entries(composition).reduce((a,b) => b[1] > a[1] ? b : a, ["",0])[0];
+            const highestOre = Object.entries(composition).reduce((a, b) => b[1] > a[1] ? b : a, ["", 0])[0];
             const rarity = ores[highestOre]?.rarity || "Unknown";
 
             // Sort odds
             const sortedOdds = Object.fromEntries(
-                Object.entries(odds).filter(([k,v]) => v>0)
-                                   .sort((a,b)=>b[1]-a[1])
+                Object.entries(odds).filter(([k, v]) => v > 0)
+                    .sort((a, b) => b[1] - a[1])
             );
 
             return {
@@ -122,30 +122,49 @@
         document.getElementById("calculateBtn").addEventListener("click", () => {
             // Read inputs
             const selected = {};
-            for(let i=1;i<=4;i++){
+            for (let i = 1; i <= 4; i++) {
                 const name = document.getElementById(`name${i}`).value.trim();
                 const amt = parseFloat(document.getElementById(`amt${i}`).value);
-                if(name && !isNaN(amt) && amt>0){
+                if (name && !isNaN(amt) && amt > 0) {
                     selected[name] = amt;
                 }
             }
             const craftType = document.getElementById("craft_type").value;
 
+            const totalCount = Object.values(selected).reduce((a, b) => a + b, 0);
+
+            if (totalCount < 3) {
+                document.getElementById("result").innerText = "Can't Forge with less than 3 Ores!";
+                return;
+            }
+
             const result = getItemChancesWithTraits(selected, craftType);
 
-            // Display
-            let output = `Rarity: ${result.rarity}\nCombined Multiplier: ${result.combinedMultiplier.toFixed(2)}\n\nComposition:\n`;
-            for(const [ore, pct] of Object.entries(result.composition)){
+            // Build output
+            let output = "";
+
+            // Warning if over 55 ores
+            if (totalCount > 55) {
+                output += "⚠️ Ore total above 55! Showing stats for 55 ores only.\n\n";
+            }
+
+            output += `Rarity: ${result.rarity}\n`;
+            output += `Combined Multiplier: ${result.combinedMultiplier.toFixed(2)}\n\nComposition:\n`;
+
+            for (const [ore, pct] of Object.entries(result.composition)) {
                 output += `  ${ore}: ${pct.toFixed(1)}%\n`;
             }
+
             output += `\nChances:\n`;
-            for(const [key, val] of Object.entries(result.odds)){
-                output += `  ${key}: ${(val*100).toFixed(1)}%\n`;
+            for (const [key, val] of Object.entries(result.odds)) {
+                output += `  ${key}: ${(val * 100).toFixed(1)}%\n`;
             }
+
             output += `\nTraits:\n  ${result.traits.join("\n  ")}`;
 
             document.getElementById("result").innerText = output;
         });
     </script>
 </body>
+
 </html>
