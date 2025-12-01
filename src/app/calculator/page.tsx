@@ -433,7 +433,7 @@ const ARMOR_TYPES = [
                                     </div>
                                     <div className={`h-8 sm:h-10 md:h-12 bg-zinc-800/50 border border-zinc-700 rounded-sm flex items-center justify-center relative overflow-hidden ${pct > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
                                         {/* Placeholder for icon */}
-                                        <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-600">no icon yet</span>
+                                        <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-600">No Icon Yet</span>
                                         {pct > 0 && <div className="absolute bottom-0 left-0 h-0.5 sm:h-1 bg-green-500" style={{ width: `${pct * 100}%` }} />}
                                     </div>
                                 </div>
