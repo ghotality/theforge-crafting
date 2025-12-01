@@ -26,6 +26,7 @@ body {
     #a8a8a8 60%, 
     #d4d4d4 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
   text-transform: uppercase;
@@ -91,14 +92,29 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Stable fade in that doesn't cause position flicker */
+@keyframes fadeInStable {
+  0% {
+    opacity: 0;
+    visibility: visible;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.animate-fade-in-stable {
+  animation: fadeInStable 0.3s ease-out forwards;
+  will-change: opacity;
 }

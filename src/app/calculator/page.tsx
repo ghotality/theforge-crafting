@@ -464,41 +464,45 @@ const ARMOR_TYPES = [
 
   // Component for Predicted Item Display to handle its own animation logic
   const PredictedItemDisplay = ({
-    type,
-    pct,
-    craftType,
-    possibleItems,
-    multiplier
+    results,
+    currentTypes,
+    craftType
   }: {
-    type: string,
-    pct: number,
-    craftType: "Weapon" | "Armor",
-    possibleItems: Array<{image: string, ratio: string}>,
-    multiplier: number
+    results: any,
+    currentTypes: string[],
+    craftType: "Weapon" | "Armor"
   }) => {
-    const masterworkPrice = calculateMasterworkPrice(type, multiplier, craftType);
-    
-    // Only animate when the item type actually changes, not just the percentage
-    // Using a key based on type ensures the component remounts and animation triggers only on type change
+    // Calculate visibility and data internally to prevent layout shifts
+    const hasResults = results && results.odds && Object.keys(results.odds).length > 0;
+    const sortedItems = hasResults ? currentTypes
+        .map(type => ({ type, pct: results.odds[type] || 0 }))
+        .sort((a, b) => b.pct - a.pct) : [];
+    const predictedItem = sortedItems[0];
+    const isVisible = hasResults && predictedItem && predictedItem.pct > 0;
+    const possibleItems = isVisible ? getPossibleItemImagesWithChances(predictedItem.type, predictedItem.pct, craftType) : [];
+    const multiplier = results?.combinedMultiplier || 0;
+    const masterworkPrice = isVisible ? calculateMasterworkPrice(predictedItem.type, multiplier, craftType) : null;
+
     return (
         <div
-            key={type}
-            className="bg-black/70 border border-zinc-600 rounded-sm px-3 sm:px-4 py-2 sm:py-2.5 text-center animate-fade-in absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xs sm:max-w-sm md:max-w-md z-10"
+            className={`bg-black/70 border border-zinc-600 rounded-sm px-3 sm:px-4 py-2 sm:py-2.5 text-center w-full z-10 transition-all duration-500 ease-out ${
+                isVisible ? 'opacity-100 transform-none' : 'opacity-0 transform translate-y-2'
+            }`}
         >
             <div className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-wider mb-0.5">
                 Predicted {craftType}
             </div>
             <div className="text-sm sm:text-base md:text-lg font-bold text-green-400 mb-1.5">
-                {type} <span className="text-zinc-300 font-normal">({(pct * 100).toFixed(1)}%)</span>
+                {predictedItem?.type || 'None'} <span className="text-zinc-300 font-normal">({predictedItem ? (predictedItem.pct * 100).toFixed(1) : '0.0'}%)</span>
             </div>
             {possibleItems.length > 0 ? (
                 <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5">
                     {possibleItems.map((item, idx) => (
-                        <PredictedItemImage 
+                        <PredictedItemImage
                             key={idx}
                             image={item.image}
                             ratio={item.ratio}
-                            alt={`${type} variation ${idx + 1}`}
+                            alt={`${predictedItem?.type || 'item'} variation ${idx + 1}`}
                         />
                     ))}
                 </div>
@@ -507,11 +511,9 @@ const ARMOR_TYPES = [
                     {craftType === "Weapon" ? "Weapon image coming soon" : "No images available"}
                 </div>
             )}
-            {masterworkPrice !== null && (
-                <div className="text-[10px] sm:text-xs text-yellow-400 font-semibold">
-                    Masterwork price: ${masterworkPrice >= 1000 ? masterworkPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : masterworkPrice.toFixed(2)}
-                </div>
-            )}
+            <div className={`text-[10px] sm:text-xs text-yellow-400 font-semibold transition-opacity duration-300 ${masterworkPrice !== null ? 'opacity-100' : 'opacity-0'}`}>
+                Masterwork price: ${masterworkPrice !== null ? (masterworkPrice >= 1000 ? masterworkPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : masterworkPrice.toFixed(2)) : '0.00'}
+            </div>
         </div>
     );
   };
@@ -783,26 +785,11 @@ const ARMOR_TYPES = [
 
                     {/* Predicted Item - Compact */}
                     <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md min-h-[120px] sm:min-h-[140px] md:min-h-[160px] flex justify-center items-start mb-4 sm:mb-5 md:mb-6">
-                        {results && results.odds && Object.keys(results.odds).length > 0 && (() => {
-                            const sortedItems = currentTypes
-                                .map(type => ({ type, pct: results.odds[type] || 0 }))
-                                .sort((a, b) => b.pct - a.pct);
-                            const predictedItem = sortedItems[0];
-
-                            if (predictedItem && predictedItem.pct > 0) {
-                                const possibleItems = getPossibleItemImagesWithChances(predictedItem.type, predictedItem.pct, craftType);
-                                return (
-                                    <PredictedItemDisplay
-                                        type={predictedItem.type}
-                                        pct={predictedItem.pct}
-                                        craftType={craftType}
-                                        possibleItems={possibleItems}
-                                        multiplier={results.combinedMultiplier || 0}
-                                    />
-                                );
-                            }
-                            return null;
-                        })()}
+                        <PredictedItemDisplay
+                            results={results}
+                            currentTypes={currentTypes}
+                            craftType={craftType}
+                        />
                     </div>
 
                     {/* Cauldron Area */}
