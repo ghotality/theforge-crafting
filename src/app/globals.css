@@ -50,3 +50,55 @@ body {
 .top-item-animation {
   animation: topItemHighlight 0.8s ease-in-out;
 }
+
+/* Ore appearing in grid animation */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    transform: scale(1.1) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Ore click feedback animation */
+@keyframes clickPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.90);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-click {
+  animation: clickPulse 0.09s ease-in-out;
+}
+
+/* Smooth fade in for result panels */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
