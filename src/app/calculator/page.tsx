@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import Link from 'next/link';
 // Removed forgecalc.css import to use Tailwind completely
 
@@ -267,18 +267,8 @@ function getItemChance(itemName: string, categoryKey: string, categoryChance: nu
 // Function to get possible item images with their chances for a category
 function getPossibleItemImagesWithChances(categoryName: string, categoryChance: number, craftType: "Weapon" | "Armor"): Array<{image: string, ratio: string}> {
   if (craftType === "Weapon") {
-    // For weapons, return single image with 1/1
-    const weaponMap: Record<string, string> = {
-      "Dagger": "dagger",
-      "Straight Sword": "straight_sword",
-      "Gauntlet": "gauntlet",
-      "Katana": "katana",
-      "Great Sword": "great_sword",
-      "Great Axe": "great_axe",
-      "Colossal Sword": "colossal_sword",
-    };
-    const imageName = weaponMap[categoryName];
-    return imageName ? [{image: `/items/${imageName}.png`, ratio: "1/1"}] : [];
+    // For weapons, don't return images since they don't exist yet - prevents unnecessary requests
+    return [];
   } else {
     // For armor, return all variations with their ratios
     const armorByCategory = getArmorItemsByCategory();
@@ -343,10 +333,51 @@ const ARMOR_TYPES = [
     "Heavy Helmet", "Heavy Leggings", "Heavy Chestplate"
 ];
 
-  // Component for Predicted Item Image
-  const PredictedItemImage = ({ image, ratio, alt }: { image: string, ratio: string, alt: string }) => {
-    const [imageLoaded, setImageLoaded] = useState(false);
+// Cache for failed image loads to prevent unnecessary requests
+const failedImageCache = new Set<string>();
+// Cache for successfully loaded images
+const loadedImageCache = new Set<string>();
+
+  // Component for Predicted Item Image - memoized to prevent unnecessary re-renders
+  const PredictedItemImage = memo(({ image, ratio, alt }: { image: string, ratio: string, alt: string }) => {
+    // Check cache first - if failed, don't render anything
+    if (failedImageCache.has(image)) {
+      return null;
+    }
+    
+    const [imageLoaded, setImageLoaded] = useState(loadedImageCache.has(image));
     const [imageError, setImageError] = useState(false);
+    
+    // If already loaded, show it immediately
+    if (loadedImageCache.has(image)) {
+      return (
+        <div className="flex flex-col items-center">
+          <img 
+            src={image} 
+            alt={alt}
+            className="h-8 sm:h-10 md:h-12 w-auto object-contain opacity-80"
+          />
+          <span className="text-[8px] sm:text-[9px] text-white mt-0.5 font-medium">
+            {ratio}
+          </span>
+        </div>
+      );
+    }
+    
+    const handleLoad = () => {
+      loadedImageCache.add(image);
+      setImageLoaded(true);
+    };
+    
+    const handleError = () => {
+      failedImageCache.add(image);
+      setImageError(true);
+    };
+    
+    // Don't render img tag if we know it failed
+    if (imageError) {
+      return null;
+    }
     
     return (
       <div className="flex flex-col items-center">
@@ -354,9 +385,9 @@ const ARMOR_TYPES = [
           src={image} 
           alt={alt}
           className="h-8 sm:h-10 md:h-12 w-auto object-contain opacity-80"
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageError(true)}
-          style={{ display: imageError ? 'none' : 'block' }}
+          onLoad={handleLoad}
+          onError={handleError}
+          loading="lazy"
         />
         {imageLoaded && !imageError && (
           <span className="text-[8px] sm:text-[9px] text-white mt-0.5 font-medium">
@@ -365,7 +396,7 @@ const ARMOR_TYPES = [
         )}
       </div>
     );
-  };
+  });
 
   // Component for Slot Button to handle its own state cleanly
   const SlotButton = ({ slot, index, onRemoveOne }: { slot: SlotItem | null, index: number, onRemoveOne: (i: number) => void }) => {
@@ -472,16 +503,33 @@ const ARMOR_TYPES = [
     currentTypes: string[],
     craftType: "Weapon" | "Armor"
   }) => {
-    // Calculate visibility and data internally to prevent layout shifts
-    const hasResults = results && results.odds && Object.keys(results.odds).length > 0;
-    const sortedItems = hasResults ? currentTypes
+    // Memoize calculations to prevent unnecessary recalculations
+    const predictedData = useMemo(() => {
+      const hasResults = results && results.odds && Object.keys(results.odds).length > 0;
+      if (!hasResults) {
+        return { isVisible: false, predictedItem: null, possibleItems: [], masterworkPrice: null };
+      }
+      
+      const sortedItems = currentTypes
         .map(type => ({ type, pct: results.odds[type] || 0 }))
-        .sort((a, b) => b.pct - a.pct) : [];
-    const predictedItem = sortedItems[0];
-    const isVisible = hasResults && predictedItem && predictedItem.pct > 0;
-    const possibleItems = isVisible ? getPossibleItemImagesWithChances(predictedItem.type, predictedItem.pct, craftType) : [];
-    const multiplier = results?.combinedMultiplier || 0;
-    const masterworkPrice = isVisible ? calculateMasterworkPrice(predictedItem.type, multiplier, craftType) : null;
+        .sort((a, b) => b.pct - a.pct);
+      const predictedItem = sortedItems[0];
+      const isVisible = predictedItem && predictedItem.pct > 0;
+      
+      if (!isVisible) {
+        return { isVisible: false, predictedItem: null, possibleItems: [], masterworkPrice: null };
+      }
+      
+      const possibleItems = getPossibleItemImagesWithChances(predictedItem.type, predictedItem.pct, craftType);
+      // Filter out images that we know have failed
+      const filteredItems = possibleItems.filter(item => !failedImageCache.has(item.image));
+      const multiplier = results?.combinedMultiplier || 0;
+      const masterworkPrice = calculateMasterworkPrice(predictedItem.type, multiplier, craftType);
+      
+      return { isVisible, predictedItem, possibleItems: filteredItems, masterworkPrice };
+    }, [results, currentTypes, craftType]);
+    
+    const { isVisible, predictedItem, possibleItems, masterworkPrice } = predictedData;
 
     return (
         <div
@@ -497,12 +545,12 @@ const ARMOR_TYPES = [
             </div>
             {possibleItems.length > 0 ? (
                 <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5">
-                    {possibleItems.map((item, idx) => (
+                    {possibleItems.map((item) => (
                         <PredictedItemImage
-                            key={idx}
+                            key={item.image}
                             image={item.image}
                             ratio={item.ratio}
-                            alt={`${predictedItem?.type || 'item'} variation ${idx + 1}`}
+                            alt={`${predictedItem?.type || 'item'} variation`}
                         />
                     ))}
                 </div>
