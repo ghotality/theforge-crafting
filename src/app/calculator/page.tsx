@@ -765,11 +765,17 @@ const ARMOR_TYPES = [
                     )}
 
                     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md flex flex-col items-center gap-2 sm:gap-3 mt-8 sm:mt-12 md:mt-16">
-                        <div className="text-center text-[11px] sm:text-xs md:text-sm text-zinc-500 font-medium px-2">
-                            Support this project by leaving a star on{' '}
-                            <a href="https://github.com/ghotality/theforge-crafting" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">
-                                GitHub
-                            </a>
+                        <div className="text-center px-2">
+                            <div className="text-[11px] sm:text-xs md:text-sm text-zinc-500 font-medium">
+                                please consider leaving a{' '}
+                                <a href="https://github.com/ghotality/theforge-crafting" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">
+                                    star
+                                </a>
+                                {' '}if you liked this website
+                            </div>
+                            <div className="text-[9px] sm:text-[10px] text-zinc-600 mt-1">
+                                it motivates me so much
+                            </div>
                         </div>
                         <button 
                             className="bg-gradient-to-t from-red-500/80 to-orange-500/80 hover:from-red-500 hover:to-orange-500 text-white font-bold py-2 sm:py-2.5 md:py-3 px-6 sm:px-7 md:px-8 rounded-sm border-2 border-red-900/50 uppercase tracking-widest transition-all shadow-lg shadow-red-900/20 text-xs sm:text-sm md:text-base"
