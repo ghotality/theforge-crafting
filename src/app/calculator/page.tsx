@@ -74,12 +74,20 @@ function getItemChancesWithTraits(selectedOres: Record<string, number>, craftTyp
   // If no ores, return defaults
   if (totalCount === 0) return { combinedMultiplier: 0, totalCount: 0, composition: {}, odds: {}, traits: [], rarity: 'Unknown' };
 
+  // If less than 3 ores, return empty odds (will show 0% in UI)
+  if (totalCount < 3) {
+    return { combinedMultiplier, totalCount, composition: {}, odds: {}, traits: [], rarity: 'Unknown' };
+  }
+
   const MAX_ODDS_ORE_COUNT = 55; 
   
   let oddsKey = totalCount > MAX_ODDS_ORE_COUNT ? MAX_ODDS_ORE_COUNT.toString() : totalCount.toString();
   
   if (!oddsDict[oddsKey]) {
-      const keys = Object.keys(oddsDict).map(Number);
+      const keys = Object.keys(oddsDict).map(Number).filter(k => k >= 3);
+      if (keys.length === 0) {
+        return { combinedMultiplier, totalCount, composition: {}, odds: {}, traits: [], rarity: 'Unknown' };
+      }
       const maxKey = Math.max(...keys);
       oddsKey = maxKey.toString();
   }
@@ -283,6 +291,8 @@ const ARMOR_TYPES = [
   const [craftType, setCraftType] = useState<"Weapon" | "Armor">("Weapon");
   const [results, setResults] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [previousTopItem, setPreviousTopItem] = useState<string | null>(null);
+  const [topItemChanged, setTopItemChanged] = useState(false);
 
   const filteredOreNames = useMemo(() => {
       const names = Object.keys(ores).filter(name => {
@@ -313,10 +323,26 @@ const ARMOR_TYPES = [
 
     if (count === 0) {
         setResults(null);
+        setPreviousTopItem(null);
         return;
     }
 
     const computed = getItemChancesWithTraits(selected, craftType);
+    
+    // Track top item for animation
+    const types = craftType === "Weapon" ? WEAPON_TYPES : ARMOR_TYPES;
+    const sortedItems = types
+      .map(type => ({ type, pct: computed.odds?.[type] || 0 }))
+      .sort((a, b) => b.pct - a.pct);
+    const currentTopItem = sortedItems[0]?.type || null;
+    
+    if (currentTopItem && currentTopItem !== previousTopItem && previousTopItem !== null && sortedItems[0]?.pct > 0) {
+      // New item reached the top, trigger animation
+      setTopItemChanged(true);
+      setTimeout(() => setTopItemChanged(false), 800);
+    }
+    
+    setPreviousTopItem(currentTopItem);
     setResults(computed);
   }, [slots, craftType]);
 
@@ -429,9 +455,15 @@ const ARMOR_TYPES = [
                                 bestCount: getBestOreCountForItem(type, craftType)
                             }))
                             .sort((a, b) => b.pct - a.pct)
-                            .map(({ type, pct, bestCount }) => {
+                            .map(({ type, pct, bestCount }, index) => {
+                            const isNewTop = index === 0 && topItemChanged && type !== previousTopItem && pct > 0;
                             return (
-                                <div key={type} className="opacity-90">
+                                <div 
+                                    key={type} 
+                                    className={`opacity-90 transition-all duration-300 ${
+                                        isNewTop ? 'top-item-animation' : ''
+                                    }`}
+                                >
                                     <div className="flex justify-between items-center mb-0.5 sm:mb-1">
                                          <span className="text-zinc-400 text-xs sm:text-sm truncate pr-2">{type}</span>
                                          <span className={`text-xs sm:text-sm font-bold flex-shrink-0 ${pct > 0 ? 'text-green-400' : 'text-zinc-600'}`}>{(pct * 100).toFixed(0)}%</span>
@@ -439,7 +471,10 @@ const ARMOR_TYPES = [
                                     <div className={`h-8 sm:h-10 md:h-12 bg-zinc-800/50 border border-zinc-700 rounded-sm flex items-center justify-center relative overflow-hidden ${pct > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
                                         {/* Best ore count */}
                                         <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-400">Best: {bestCount} ores</span>
-                                        {pct > 0 && <div className="absolute bottom-0 left-0 h-0.5 sm:h-1 bg-green-500" style={{ width: `${pct * 100}%` }} />}
+                                        <div 
+                                            className="absolute bottom-0 left-0 h-0.5 sm:h-1 bg-green-500 transition-all duration-300 ease-out" 
+                                            style={{ width: `${pct * 100}%` }} 
+                                        />
                                     </div>
                                 </div>
                             );
