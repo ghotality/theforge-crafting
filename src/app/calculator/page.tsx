@@ -134,6 +134,23 @@ function getItemChancesWithTraits(selectedOres: Record<string, number>, craftTyp
   return { combinedMultiplier, totalCount, composition, odds: sortedOdds, traits, rarity };
 }
 
+// Function to find best ore count for each item type
+function getBestOreCountForItem(itemName: string, craftType: "Weapon" | "Armor"): number {
+  const oddsDict = craftType === "Weapon" ? weaponOdds : armorOdds;
+  let bestCount = 0;
+  let bestPct = 0;
+
+  for (const [countStr, items] of Object.entries(oddsDict)) {
+    const pct = items[itemName] || 0;
+    if (pct > bestPct) {
+      bestPct = pct;
+      bestCount = parseInt(countStr);
+    }
+  }
+
+  return bestCount;
+}
+
 // --- Components ---
 
 const RarityColors: Record<string, string> = {
@@ -340,9 +357,13 @@ const ARMOR_TYPES = [
                     
                     <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3 md:space-y-4">
                         {currentTypes
-                            .map(type => ({ type, pct: results?.odds?.[type] || 0 }))
+                            .map(type => ({ 
+                                type, 
+                                pct: results?.odds?.[type] || 0,
+                                bestCount: getBestOreCountForItem(type, craftType)
+                            }))
                             .sort((a, b) => b.pct - a.pct)
-                            .map(({ type, pct }) => {
+                            .map(({ type, pct, bestCount }) => {
                             return (
                                 <div key={type} className="opacity-90">
                                     <div className="flex justify-between items-center mb-0.5 sm:mb-1">
@@ -350,8 +371,8 @@ const ARMOR_TYPES = [
                                          <span className={`text-xs sm:text-sm font-bold flex-shrink-0 ${pct > 0 ? 'text-green-400' : 'text-zinc-600'}`}>{(pct * 100).toFixed(0)}%</span>
                                     </div>
                                     <div className={`h-8 sm:h-10 md:h-12 bg-zinc-800/50 border border-zinc-700 rounded-sm flex items-center justify-center relative overflow-hidden ${pct > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
-                                        {/* Placeholder for icon */}
-                                        <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-600">No Icon Yet</span>
+                                        {/* Best ore count */}
+                                        <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-400">Best: {bestCount} ores</span>
                                         {pct > 0 && <div className="absolute bottom-0 left-0 h-0.5 sm:h-1 bg-green-500" style={{ width: `${pct * 100}%` }} />}
                                     </div>
                                 </div>
