@@ -376,7 +376,7 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
       return (
         <button 
             onClick={() => onRemoveOne(index)}
-            className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 border-2 ${RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all flex flex-col items-start justify-start p-0.5 sm:p-1 relative group overflow-hidden select-none`}
+            className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 border-2 ${RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all cursor-pointer flex flex-col items-start justify-start p-0.5 sm:p-1 relative group overflow-hidden select-none animate-pop-in`}
         >
             {oreImage ? (
                 <>
@@ -401,6 +401,101 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
             </div>
         </button>
       );
+  };
+
+  // Component for Ore Button with click animation
+  const OreButton = ({ 
+    oreName, 
+    data, 
+    oreImage, 
+    onClick 
+  }: { 
+    oreName: string, 
+    data: OreData, 
+    oreImage: string | null, 
+    onClick: () => void 
+  }) => {
+    const [isClicked, setIsClicked] = useState(false);
+
+    const handleClick = () => {
+      setIsClicked(true);
+      onClick();
+      setTimeout(() => setIsClicked(false), 150); // Reset animation state
+    };
+
+    return (
+        <button 
+            onClick={handleClick}
+            className={`aspect-square border ${RarityColors[data.rarity]} ${RarityBg[data.rarity]} bg-opacity-10 hover:bg-opacity-30 hover:brightness-155 hover:shadow-[0_0_10px_rgba(255,255,255,0.2)] duration-150 ease-out cursor-pointer flex flex-col items-start justify-start p-0.5 sm:p-1 relative group transition-all overflow-hidden ${isClicked ? 'animate-click' : ''}`}
+        >
+            {oreImage ? (
+                <>
+                    <img 
+                        src={oreImage} 
+                        alt={oreName}
+                        className="w-full h-full object-cover absolute inset-0 opacity-80"
+                    />
+                    <div className={`absolute inset-0 ${RarityBg[data.rarity]} opacity-30`} />
+                </>
+            ) : null}
+            <span 
+                className={`text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-left leading-tight font-medium break-words w-full px-1 relative z-10 ${
+                    oreImage 
+                        ? 'text-white' 
+                        : ''
+                }`}
+            >
+                {oreName}
+            </span>
+            {/* Multiplier hint */}
+            <span className="absolute bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[6px] sm:text-[7px] md:text-[8px] text-zinc-300 z-10 font-semibold">{data.multiplier}x</span>
+        </button>
+    );
+  };
+
+  // Component for Predicted Item Display to handle its own animation logic
+  const PredictedItemDisplay = ({
+    type,
+    pct,
+    craftType,
+    possibleItems
+  }: {
+    type: string,
+    pct: number,
+    craftType: "Weapon" | "Armor",
+    possibleItems: Array<{image: string, ratio: string}>
+  }) => {
+    // Only animate when the item type actually changes, not just the percentage
+    // Using a key based on type ensures the component remounts and animation triggers only on type change
+    return (
+        <div
+            key={type}
+            className="bg-black/70 border border-zinc-600 rounded-sm px-3 sm:px-4 py-2 sm:py-2.5 text-center animate-fade-in absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xs sm:max-w-sm md:max-w-md z-10"
+        >
+            <div className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-wider mb-0.5">
+                Predicted {craftType}
+            </div>
+            <div className="text-sm sm:text-base md:text-lg font-bold text-green-400 mb-1.5">
+                {type} <span className="text-zinc-300 font-normal">({(pct * 100).toFixed(1)}%)</span>
+            </div>
+            {possibleItems.length > 0 ? (
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                    {possibleItems.map((item, idx) => (
+                        <PredictedItemImage 
+                            key={idx}
+                            image={item.image}
+                            ratio={item.ratio}
+                            alt={`${type} variation ${idx + 1}`}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-[9px] sm:text-[10px] text-zinc-500 italic">
+                    {craftType === "Weapon" ? "Weapon image coming soon" : "No images available"}
+                </div>
+            )}
+        </div>
+    );
   };
 
   export default function Calculator() {
@@ -669,6 +764,27 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
                     </div>
 
                     {/* Predicted Item - Compact */}
+                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md min-h-[120px] sm:min-h-[140px] md:min-h-[160px] flex justify-center items-start">
+                        {results && results.odds && Object.keys(results.odds).length > 0 && (() => {
+                            const sortedItems = currentTypes
+                                .map(type => ({ type, pct: results.odds[type] || 0 }))
+                                .sort((a, b) => b.pct - a.pct);
+                            const predictedItem = sortedItems[0];
+
+                            if (predictedItem && predictedItem.pct > 0) {
+                                const possibleItems = getPossibleItemImagesWithChances(predictedItem.type, predictedItem.pct, craftType);
+                                return (
+                                    <PredictedItemDisplay
+                                        type={predictedItem.type}
+                                        pct={predictedItem.pct}
+                                        craftType={craftType}
+                                        possibleItems={possibleItems}
+                                    />
+                                );
+                            }
+                            return null;
+                        })()}
+                    </div>
                     {results && results.odds && Object.keys(results.odds).length > 0 && (() => {
                         const sortedItems = currentTypes
                             .map(type => ({ type, pct: results.odds[type] || 0 }))
@@ -719,7 +835,7 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
                         <div className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-1.5 sm:mb-2 z-10 px-2 sm:px-0">
                             {slots.map((slot, idx) => (
                                 <SlotButton 
-                                    key={idx} 
+                                    key={`${idx}-${slot?.name ?? 'empty'}-${slot?.count ?? 0}`}
                                     index={idx}
                                     slot={slot}
                                     onRemoveOne={removeOneOreFromSlot}
@@ -762,8 +878,9 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
                     </div>
 
                     {/* Active Traits - Outside Cauldron Area */}
+                    <div className="w-full max-w-xs sm:max-w-sm md:max-w-md min-h-[80px] mb-1.5 sm:mb-2">
                     {results?.traits && results.traits.length > 0 && (
-                         <div className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-black/40 border border-white/10 rounded-lg p-2 sm:p-3 md:p-4 mb-1.5 sm:mb-2">
+                         <div className="w-full bg-black/40 border border-white/10 rounded-lg p-2 sm:p-3 md:p-4 animate-fade-in">
                             <h3 className="text-orange-400 font-bold mb-1.5 sm:mb-2 uppercase text-xs sm:text-sm text-center">Active Traits</h3>
                             <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 {results.traits.map((tr: any, idx: number) => (
@@ -779,6 +896,7 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
                             </div>
                          </div>
                     )}
+                    </div>
 
                     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md flex flex-col items-center gap-2 sm:gap-3 mt-8 sm:mt-12 md:mt-16">
                         <div className="text-center px-2">
@@ -829,33 +947,13 @@ function calculateSellPrice(itemName: string, multiplier: number): number {
                                 const oreImage = getOreImagePath(oreName);
                                 
                                 return (
-                                    <button 
+                                    <OreButton 
                                         key={oreName}
+                                        oreName={oreName}
+                                        data={data}
+                                        oreImage={oreImage}
                                         onClick={() => addOreToSlot(oreName)}
-                                        className={`aspect-square border ${RarityColors[data.rarity]} ${RarityBg[data.rarity]} bg-opacity-10 hover:bg-opacity-30 flex flex-col items-start justify-start p-0.5 sm:p-1 relative group transition-all overflow-hidden`}
-                                    >
-                                        {oreImage ? (
-                                            <>
-                                                <img 
-                                                    src={oreImage} 
-                                                    alt={oreName}
-                                                    className="w-full h-full object-cover absolute inset-0 opacity-80"
-                                                />
-                                                <div className={`absolute inset-0 ${RarityBg[data.rarity]} opacity-30`} />
-                                            </>
-                                        ) : null}
-                                        <span 
-                                            className={`text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-left leading-tight font-medium break-words w-full px-1 relative z-10 ${
-                                                oreImage 
-                                                    ? 'text-white' 
-                                                    : ''
-                                            }`}
-                                        >
-                                            {oreName}
-                                        </span>
-                                        {/* Multiplier hint */}
-                                        <span className="absolute bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[6px] sm:text-[7px] md:text-[8px] text-zinc-300 z-10 font-semibold">{data.multiplier}x</span>
-                                    </button>
+                                    />
                                 )
                             })}
                         </div>
