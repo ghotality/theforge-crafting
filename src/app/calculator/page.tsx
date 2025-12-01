@@ -151,6 +151,51 @@ function getBestOreCountForItem(itemName: string, craftType: "Weapon" | "Armor")
   return bestCount;
 }
 
+// Function to get ore image path
+function getOreImagePath(oreName: string): string | null {
+  // Map ore names to image file names
+  const imageMap: Record<string, string> = {
+    "Stone Ore": "stone",
+    "Sand Stone": "sand_stone",
+    "Copper Ore": "cooper", // Note: file is named "cooper.png"
+    "Iron Ore": "iron",
+    "Tin Ore": "tin",
+    "Silver Ore": "silver",
+    "Gold Ore": "gold",
+    "Mushroomite Ore": "mushroomite",
+    "Platinum Ore": "platinum",
+    "Bananite Ore": "bananite",
+    "Cardboardite Ore": "cardboardite",
+    "Aite Ore": "aite",
+    "Poopite Ore": "poopite",
+    "Cobalt Ore": "cobalt",
+    "Titanium Ore": "titanium",
+    "Lapis Lazuli Ore": "lapis_lazuli",
+    "Volcanic Rock": "volcanic",
+    "Quartz Ore": "quartz",
+    "Amethyst Ore": "amethyst",
+    "Topaz Ore": "topaz",
+    "Diamond Ore": "diamond",
+    "Sapphire Ore": "sapphirew", // Note: file is named "sapphirew.png"
+    "Cuprite Ore": "cuprite",
+    "Obsidian Ore": "obsidian",
+    "Emerald Ore": "emerald",
+    "Ruby Ore": "ruby",
+    "Rivalite Ore": "rivalite",
+    "Uranium Ore": "uranium",
+    "Mythril Ore": "mythril",
+    "Eye Ore": "eye",
+    "Lightite Ore": "lightite",
+    "Demonite Ore": "demonite",
+  };
+
+  const imageName = imageMap[oreName];
+  if (imageName) {
+    return `/ores/${imageName}.png`;
+  }
+  return null;
+}
+
 // --- Components ---
 
 const RarityColors: Record<string, string> = {
@@ -198,15 +243,28 @@ const ARMOR_TYPES = [
           );
       }
 
+      const oreImage = getOreImagePath(slot.name);
+      
       return (
         <button 
             onClick={() => onRemoveOne(index)}
-            className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 border-2 ${RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all flex flex-col items-center justify-center relative group overflow-hidden select-none`}
+            className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 border-2 ${RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all flex flex-col items-start justify-start p-0.5 sm:p-1 relative group overflow-hidden select-none`}
         >
-            <div className={`w-full h-full absolute inset-0 opacity-20 ${RarityBg[ores[slot.name].rarity]}`} />
+            {oreImage ? (
+                <>
+                    <img 
+                        src={oreImage} 
+                        alt={slot.name}
+                        className="w-full h-full object-cover absolute inset-0 opacity-80"
+                    />
+                    <div className={`absolute inset-0 ${RarityBg[ores[slot.name].rarity]} opacity-30`} />
+                </>
+            ) : (
+                <div className={`w-full h-full absolute inset-0 opacity-20 ${RarityBg[ores[slot.name].rarity]}`} />
+            )}
 
-            <span className="text-[7px] sm:text-[8px] md:text-[10px] text-center leading-tight px-0.5 sm:px-1 z-10 font-bold relative">{slot.name}</span>
-            <span className="absolute bottom-0.5 sm:bottom-1 right-0.5 sm:right-1 text-[8px] sm:text-[10px] md:text-xs font-bold text-white z-10 drop-shadow-md">x{slot.count}</span>
+            <span className={`text-[7px] sm:text-[8px] md:text-[10px] text-left leading-tight font-medium break-words w-full px-1 z-10 relative ${oreImage ? 'text-white' : ''}`}>{slot.name}</span>
+            <span className="absolute bottom-0.5 sm:bottom-1 right-0.5 sm:right-1 text-[8px] sm:text-[10px] md:text-xs font-bold text-white z-10">x{slot.count}</span>
             
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
                 <span className="text-red-500 text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold bg-black/80 px-0.5 sm:px-1 rounded">
@@ -478,15 +536,35 @@ const ARMOR_TYPES = [
                                 // const isCompatible = data.traitType === "All" || data.traitType === craftType || !data.traitType;
                                 // if (!isCompatible && data.traitType !== null) return null; 
 
+                                const oreImage = getOreImagePath(oreName);
+                                
                                 return (
                                     <button 
                                         key={oreName}
                                         onClick={() => addOreToSlot(oreName)}
-                                        className={`aspect-square border ${RarityColors[data.rarity]} ${RarityBg[data.rarity]} bg-opacity-10 hover:bg-opacity-30 flex flex-col items-center justify-center p-0.5 sm:p-1 relative group transition-all`}
+                                        className={`aspect-square border ${RarityColors[data.rarity]} ${RarityBg[data.rarity]} bg-opacity-10 hover:bg-opacity-30 flex flex-col items-start justify-start p-0.5 sm:p-1 relative group transition-all overflow-hidden`}
                                     >
-                                        <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-center leading-tight font-medium break-words w-full px-0.5">{oreName}</span>
+                                        {oreImage ? (
+                                            <>
+                                                <img 
+                                                    src={oreImage} 
+                                                    alt={oreName}
+                                                    className="w-full h-full object-cover absolute inset-0 opacity-80"
+                                                />
+                                                <div className={`absolute inset-0 ${RarityBg[data.rarity]} opacity-30`} />
+                                            </>
+                                        ) : null}
+                                        <span 
+                                            className={`text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-left leading-tight font-medium break-words w-full px-1 relative z-10 ${
+                                                oreImage 
+                                                    ? 'text-white' 
+                                                    : ''
+                                            }`}
+                                        >
+                                            {oreName}
+                                        </span>
                                         {/* Multiplier hint */}
-                                        <span className="absolute bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[6px] sm:text-[7px] md:text-[8px] text-zinc-400">{data.multiplier}x</span>
+                                        <span className="absolute bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[6px] sm:text-[7px] md:text-[8px] text-zinc-300 z-10 font-semibold">{data.multiplier}x</span>
                                     </button>
                                 )
                             })}
