@@ -84,9 +84,9 @@ export default function Home() {
              </div>
              <div className="text-left">
                 <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium mb-0.5">Developed by</div>
-                <a href="https://discord.com/users/lrdd" target="_blank" rel="noopener noreferrer" className="text-zinc-200 font-semibold hover:text-orange-400 transition-colors">
+                <div className="text-zinc-200 font-semibold">
                    lrdd
-                </a>
+                </div>
              </div>
           </div>
 
