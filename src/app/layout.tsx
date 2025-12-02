@@ -19,7 +19,10 @@ const archivoBlack = Archivo_Black({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://theforge.squareweb.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "The Forge - Crafting",
   description: "Optimize your builds with our advanced calculator. Discover ore traits, calculate odds, and forge the ultimate gear.",
   openGraph: {
@@ -33,6 +36,7 @@ export const metadata: Metadata = {
         alt: "The Forge - Crafting Calculator",
       },
     ],
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
