@@ -11,43 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build Next.js application
-        run: npm run build
-      
-      - name: Remove dev dependencies
-        run: npm prune --production
-      
-      - name: Set permissions
-        run: chmod -R 777 .next next.config.ts package.json node_modules
-      
-      - name: Create deployment package
-        run: |
-          zip -r project.zip \
-            package.json \
-            .next \
-            next.config.ts \
-            postcss.config.mjs \
-            tsconfig.json \
-            public \
-            squarecloud.app \
-            node_modules \
-            -x ".next/cache/*"
-      
-      - name: Deploy to Square Cloud
-        uses: squarecloudofc/github-action@v2
-        with:
-          command: commit --file project.zip ${{ secrets.SQUARECLOUD_APP_ID }}
-          token: ${{ secrets.SQUARECLOUD_TOKEN }}
-
+       - uses: actions/checkout@v4
+       - uses: actions/setup-node@v4
+         with:
+           node-version: 22
+ 
+       - name: Install dependencies
+         run: npm install
+ 
+       - name: Build website
+         run: npm run build && chmod -R 777 .next next.config.ts package.json
+ 
+       - name: Add website to zip
+         run: zip -r project.zip package.json .next next.config.ts public -x ".next/cache/*"
+ 
+       - name: Deploy on Square Cloud
+         uses: squarecloudofc/github-action@v2
+         with:
+           command: commit --file project.zip ${{ secrets.SQUARECLOUD_APP_ID }}
+           token: '${{ secrets.SQUARE_CLOUD_TOKEN }}'
