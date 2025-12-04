@@ -515,7 +515,7 @@ const loadedImageCache = new Set<string>();
               src={image} 
               alt={alt}
               fill
-              sizes="48px"
+              sizes="128px"
               className="object-contain opacity-80 transition-opacity duration-200 group-hover:opacity-100"
             />
           </div>
@@ -556,7 +556,7 @@ const loadedImageCache = new Set<string>();
             src={image} 
             alt={alt}
             fill
-            sizes="48px"
+            sizes="128px"
             className="object-contain opacity-80 transition-opacity duration-200 group-hover:opacity-100"
             onLoad={handleLoad}
             onError={handleError}
@@ -798,7 +798,7 @@ const loadedImageCache = new Set<string>();
                           src={oreImage} 
                           alt={slot.name}
                           fill
-                          sizes="80px"
+                          sizes="100px"
                           className="object-cover opacity-80"
                       />
                       <div className={`absolute inset-0 ${RarityBg[ores[slot.name].rarity]} opacity-30`} />
@@ -868,7 +868,7 @@ const loadedImageCache = new Set<string>();
                         src={oreImage} 
                         alt={oreName}
                         fill
-                        sizes="80px"
+                        sizes="100px"
                         className="object-cover opacity-80"
                     />
                     <div className={`absolute inset-0 ${RarityBg[data.rarity]} opacity-30`} />
@@ -1324,7 +1324,7 @@ const loadedImageCache = new Set<string>();
                                                           src={item.image} 
                                                           alt={item.name}
                                                           fill
-                                                          sizes="48px"
+                                                          sizes="128px"
                                                           className="object-contain opacity-80 transition-opacity duration-200 group-hover:opacity-100"
                                                       />
                                                     </div>
@@ -1411,7 +1411,7 @@ const loadedImageCache = new Set<string>();
                                                           src={item.image} 
                                                           alt={item.name}
                                                           fill
-                                                          sizes="48px"
+                                                          sizes="128px"
                                                           className="object-contain opacity-80 transition-opacity duration-200 group-hover:opacity-100"
                                                           loading="lazy"
                                                       />
