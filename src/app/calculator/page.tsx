@@ -699,16 +699,23 @@ const loadedImageCache = new Set<string>();
       const [isDeleting, setIsDeleting] = useState(false);
       const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
       const holdStartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+      const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
       const wasHoldingRef = useRef(false);
+      const isMountedRef = useRef(true);
 
       // Cleanup on unmount
       useEffect(() => {
+        isMountedRef.current = true;
         return () => {
+          isMountedRef.current = false;
           if (progressIntervalRef.current) {
             clearInterval(progressIntervalRef.current);
           }
           if (holdStartTimeoutRef.current) {
             clearTimeout(holdStartTimeoutRef.current);
+          }
+          if (deleteTimeoutRef.current) {
+            clearTimeout(deleteTimeoutRef.current);
           }
         };
       }, []);
@@ -841,12 +848,20 @@ const loadedImageCache = new Set<string>();
       };
 
       const handleDelete = (deleteCallback: () => void) => {
+        // Apply visual feedback immediately
         setIsDeleting(true);
-        // Wait for animation to complete before actually removing
-        setTimeout(() => {
-          deleteCallback();
-          setIsDeleting(false);
-        }, 100); // Match animation duration
+        // Call callback immediately to allow rapid consecutive clicks
+        deleteCallback();
+        // Reset animation state after a brief moment (visual only, doesn't block)
+        // Clear any existing timeout
+        if (deleteTimeoutRef.current) {
+          clearTimeout(deleteTimeoutRef.current);
+        }
+        deleteTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            setIsDeleting(false);
+          }
+        }, 100);
       };
       
       return (
@@ -858,7 +873,7 @@ const loadedImageCache = new Set<string>();
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
             onClick={handleClick}
-            className={`border-2 ${isDeleting ? 'slot-deleting' : RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all cursor-pointer flex flex-col items-start justify-start p-0.5 sm:p-1 relative group overflow-hidden select-none ${isDeleting ? '' : 'animate-pop-in'} ${
+            className={`border-2 ${isDeleting ? 'slot-deleting' : RarityColors[ores[slot.name].rarity] || 'border-white'} bg-black/60 hover:bg-black/80 transition-all cursor-pointer flex flex-col items-start justify-start p-0.5 sm:p-1 relative group overflow-hidden select-none ${isDeleting ? '' : 'animate-reverse-zoom'} ${
               isMobile 
                 ? 'w-full aspect-square' 
                 : 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20'
@@ -1727,7 +1742,7 @@ const loadedImageCache = new Set<string>();
                         )
                     ) : (
                         /* Desktop: Show full traits panel with fade in/out animations */
-                        shouldShowTraits && (
+                        shouldShowTraits && (isTraitsFadingOut || (results?.traits && results.traits.length > 0)) && (
                              <div className={`w-full bg-black/40 border border-white/10 p-2 sm:p-3 md:p-4 corner-decoration relative ${
                                isTraitsFadingOut ? 'animate-fade-out' : 'animate-fade-in'
                              }`}>
