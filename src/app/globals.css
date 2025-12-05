@@ -241,7 +241,6 @@ body {
 .slot-deleting {
   animation: deleteBorderPulse 0.1s ease-in-out;
   border-color: rgb(239 68 68) !important;
-  pointer-events: none;
   will-change: border-color, box-shadow;
 }
 
@@ -299,4 +298,57 @@ body {
 .animate-modal-in {
   animation: modalFadeIn 0.2s ease-out forwards;
   will-change: transform, opacity;
+}
+
+/* Corner decorations for game-style frames */
+.corner-decoration {
+  position: relative;
+}
+
+/* Corner decoration using absolute positioned elements - game-style corner cuts */
+.corner-decor-top-left,
+.corner-decor-top-right,
+.corner-decor-bottom-left,
+.corner-decor-bottom-right {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.corner-decor-top-left {
+  top: -2px;
+  left: -2px;
+  border-top: 4px solid;
+  border-left: 4px solid;
+  border-color: inherit;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.corner-decor-top-right {
+  top: -2px;
+  right: -2px;
+  border-top: 4px solid;
+  border-right: 4px solid;
+  border-color: inherit;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.corner-decor-bottom-left {
+  bottom: -2px;
+  left: -2px;
+  border-bottom: 4px solid;
+  border-left: 4px solid;
+  border-color: inherit;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
+.corner-decor-bottom-right {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 4px solid;
+  border-right: 4px solid;
+  border-color: inherit;
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
 }

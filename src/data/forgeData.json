@@ -37,7 +37,9 @@
     "Double Battle Axe": 15.75,
     "Great Sword": 20,
     "Hammer": 22,
-    "Skull Crusher": 24
+    "Skull Crusher": 24,
+    "Chaos": 9.375,
+    "Dragon Slayer": 22
   },
   "armorStats": {
     "Light Helmet": 3.75,

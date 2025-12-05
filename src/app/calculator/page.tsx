@@ -226,6 +226,14 @@ function getBestOreCountForItem(itemName: string, craftType: "Weapon" | "Armor")
   return bestCount;
 }
 
+// Image version for cache busting - increment this when you update images
+const IMAGE_VERSION = '2';
+
+// Function to add version parameter to image URLs for cache busting
+function addImageVersion(imagePath: string): string {
+  return `${imagePath}?v=${IMAGE_VERSION}`;
+}
+
 // Function to get ore image path
 function getOreImagePath(oreName: string): string | null {
   // Map ore names to image file names
@@ -276,73 +284,85 @@ function getOreImagePath(oreName: string): string | null {
 
   const imageName = imageMap[oreName];
   if (imageName) {
-    return `/ores/${imageName}.png`;
+    return addImageVersion(`/ores/${imageName}.png`);
   }
   return null;
 }
 
 // Function to get armor items grouped by category (Light, Medium, Heavy)
 function getArmorItemsByCategory(): Record<string, Array<{name: string, image: string, categoryKey: string}>> {
+  const createArmorItem = (name: string, image: string, categoryKey: string) => ({
+    name,
+    image: addImageVersion(`/items/${image}.png`),
+    categoryKey
+  });
+  
   return {
     "Light": [
-      {name: "Light Helmet", image: "light_helmet", categoryKey: "Light Helmet"},
-      {name: "Light Leggings", image: "light_leggings", categoryKey: "Light Leggings"},
-      {name: "Light Chestplate", image: "light_chestplate", categoryKey: "Light Chestplate"},
+      createArmorItem("Light Helmet", "light_helmet", "Light Helmet"),
+      createArmorItem("Light Leggings", "light_leggings", "Light Leggings"),
+      createArmorItem("Light Chestplate", "light_chestplate", "Light Chestplate"),
     ],
     "Medium": [
-      {name: "Medium Helmet", image: "medium_helmet", categoryKey: "Medium Helmet"},
-      {name: "Medium Leggings", image: "medium_leggings", categoryKey: "Medium Leggings"},
-      {name: "Medium Chestplate", image: "medium_chestplate", categoryKey: "Medium Chestplate"},
-      {name: "Samurai Helmet", image: "samurai_helmet", categoryKey: "Medium Helmet"},
-      {name: "Samurai Leggings", image: "samurai_leggings", categoryKey: "Medium Leggings"},
-      {name: "Samurai Chestplate", image: "samurai_chestplate", categoryKey: "Medium Chestplate"},
+      createArmorItem("Medium Helmet", "medium_helmet", "Medium Helmet"),
+      createArmorItem("Medium Leggings", "medium_leggings", "Medium Leggings"),
+      createArmorItem("Medium Chestplate", "medium_chestplate", "Medium Chestplate"),
+      createArmorItem("Samurai Helmet", "samurai_helmet", "Medium Helmet"),
+      createArmorItem("Samurai Leggings", "samurai_leggings", "Medium Leggings"),
+      createArmorItem("Samurai Chestplate", "samurai_chestplate", "Medium Chestplate"),
     ],
     "Heavy": [
-      {name: "Knight Helmet", image: "knight_helmet", categoryKey: "Heavy Helmet"},
-      {name: "Dark Knight Helmet", image: "dark_knight_helmet", categoryKey: "Heavy Helmet"},
-      {name: "Knight Leggings", image: "knight_leggings", categoryKey: "Heavy Leggings"},
-      {name: "Dark Knight Leggings", image: "dark_knight_leggings", categoryKey: "Heavy Leggings"},
-      {name: "Knight Chestplate", image: "knight_chestplate", categoryKey: "Heavy Chestplate"},
-      {name: "Dark Knight Chestplate", image: "dark_knight_chestplate", categoryKey: "Heavy Chestplate"},
+      createArmorItem("Knight Helmet", "knight_helmet", "Heavy Helmet"),
+      createArmorItem("Dark Knight Helmet", "dark_knight_helmet", "Heavy Helmet"),
+      createArmorItem("Knight Leggings", "knight_leggings", "Heavy Leggings"),
+      createArmorItem("Dark Knight Leggings", "dark_knight_leggings", "Heavy Leggings"),
+      createArmorItem("Knight Chestplate", "knight_chestplate", "Heavy Chestplate"),
+      createArmorItem("Dark Knight Chestplate", "dark_knight_chestplate", "Heavy Chestplate"),
     ],
   };
 }
 
 // Function to get weapon items grouped by category
 function getWeaponItemsByCategory(): Record<string, Array<{name: string, image: string, categoryKey: string}>> {
+  const createWeaponItem = (name: string, image: string, categoryKey: string) => ({
+    name,
+    image: addImageVersion(`/weapons/${image}.png`),
+    categoryKey
+  });
+  
   return {
     "Dagger": [
-      {name: "Dagger", image: "dagger", categoryKey: "Dagger"},
-      {name: "Gladius Dagger", image: "gladius_dagger", categoryKey: "Dagger"},
-      {name: "Hook", image: "hook", categoryKey: "Dagger"},
+      createWeaponItem("Dagger", "dagger", "Dagger"),
+      createWeaponItem("Gladius Dagger", "gladius_dagger", "Dagger"),
+      createWeaponItem("Hook", "hook", "Dagger"),
     ],
     "Great Sword": [
-      {name: "Crusader Sword", image: "crusader", categoryKey: "Great Sword"},
-      {name: "Long Sword", image: "long_sword", categoryKey: "Great Sword"},
+      createWeaponItem("Crusader Sword", "crusader", "Great Sword"),
+      createWeaponItem("Long Sword", "long_sword", "Great Sword"),
     ],
     "Great Axe": [
-      {name: "Double Battle Axe", image: "double_battle_axe", categoryKey: "Great Axe"},
-      {name: "Scythe", image: "scythe", categoryKey: "Great Axe"},
+      createWeaponItem("Double Battle Axe", "double_battle_axe", "Great Axe"),
+      createWeaponItem("Scythe", "scythe", "Great Axe"),
     ],
     "Katana": [
-      {name: "Uchigatana", image: "uchigatana", categoryKey: "Katana"},
-      {name: "Tachi", image: "tachi", categoryKey: "Katana"},
+      createWeaponItem("Uchigatana", "uchigatana", "Katana"),
+      createWeaponItem("Tachi", "tachi", "Katana"),
     ],
     "Straight Sword": [
-      {name: "Falchion", image: "falchion", categoryKey: "Straight Sword"},
-      {name: "Cutlass", image: "cutlass", categoryKey: "Straight Sword"},
-      {name: "Rapier", image: "rapier", categoryKey: "Straight Sword"},
-      {name: "Chaos", image: "chaos", categoryKey: "Straight Sword"},
+      createWeaponItem("Falchion", "falchion", "Straight Sword"),
+      createWeaponItem("Cutlass", "cutlass", "Straight Sword"),
+      createWeaponItem("Rapier", "rapier", "Straight Sword"),
+      createWeaponItem("Chaos", "chaos", "Straight Sword"),
     ],
     "Gauntlet": [
-      {name: "Ironhand", image: "ironhand", categoryKey: "Gauntlet"},
-      {name: "Relevator", image: "relevator", categoryKey: "Gauntlet"},
+      createWeaponItem("Ironhand", "ironhand", "Gauntlet"),
+      createWeaponItem("Relevator", "relevator", "Gauntlet"),
     ],
     "Colossal Sword": [
-      {name: "Great Sword", image: "great_sword", categoryKey: "Colossal Sword"},
-      {name: "Hammer", image: "hammer", categoryKey: "Colossal Sword"},
-      {name: "Skull Crusher", image: "skull_crusher", categoryKey: "Colossal Sword"},
-      {name: "Dragon Slayer", image: "dragon_slayer", categoryKey: "Colossal Sword"},
+      createWeaponItem("Great Sword", "great_sword", "Colossal Sword"),
+      createWeaponItem("Hammer", "hammer", "Colossal Sword"),
+      createWeaponItem("Skull Crusher", "skull_crusher", "Colossal Sword"),
+      createWeaponItem("Dragon Slayer", "dragon_slayer", "Colossal Sword"),
     ],
   };
 }
@@ -412,7 +432,7 @@ function getItemChance(itemName: string, categoryKey: string, categoryChance: nu
 }
 
 // Function to get possible item images with their chances for a category
-function getPossibleItemImagesWithChances(categoryName: string, categoryChance: number, craftType: "Weapon" | "Armor"): Array<{image: string, ratio: string, name: string, chance: number}> {
+function getPossibleItemImagesWithChances(categoryName: string, categoryChance: number, craftType: "Weapon" | "Armor"): Array<{image: string, ratio: string, name: string, chance: number, categoryKey: string}> {
   if (craftType === "Weapon") {
     // For weapons, return all variations with their ratios
     const weaponByCategory = getWeaponItemsByCategory();
@@ -422,10 +442,11 @@ function getPossibleItemImagesWithChances(categoryName: string, categoryChance: 
     return categoryItems.map(item => {
       const { chance, ratio } = getItemChance(item.name, item.categoryKey, categoryChance, "Weapon");
       return {
-        image: `/weapons/${item.image}.png`,
+        image: item.image, // Already has version parameter
         ratio: ratio,
         name: item.name,
-        chance: chance
+        chance: chance,
+        categoryKey: item.categoryKey
       };
     });
   } else {
@@ -437,10 +458,11 @@ function getPossibleItemImagesWithChances(categoryName: string, categoryChance: 
     return categoryItems.map(item => {
       const { chance, ratio } = getItemChance(item.name, item.categoryKey, categoryChance, "Armor");
       return {
-        image: `/items/${item.image}.png`,
+        image: item.image, // Already has version parameter
         ratio: ratio,
         name: item.name,
-        chance: chance
+        chance: chance,
+        categoryKey: item.categoryKey
       };
     });
   }
@@ -511,7 +533,7 @@ const failedImageCache = new Set<string>();
 const loadedImageCache = new Set<string>();
 
   // Component for Predicted Item Image - memoized to prevent unnecessary re-renders
-  const PredictedItemImage = memo(({ image, ratio, alt, name, chance }: { image: string, ratio: string, alt: string, name?: string, chance?: number }) => {
+  const PredictedItemImage = memo(({ image, ratio, alt, name, chance, multiplier, craftType, categoryKey }: { image: string, ratio: string, alt: string, name?: string, chance?: number, multiplier?: number, craftType?: "Weapon" | "Armor", categoryKey?: string }) => {
     // Check cache first - if failed, don't render anything
     if (failedImageCache.has(image)) {
       return null;
@@ -541,6 +563,25 @@ const loadedImageCache = new Set<string>();
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-50 shadow-lg">
               <div className="font-semibold text-zinc-100">{name}</div>
               <div className="text-green-400 font-medium">{(chance * 100).toFixed(2)}%</div>
+              {multiplier !== undefined && craftType && name && (() => {
+                const stat = calculateMasterworkStat(name, multiplier, craftType);
+                const priceKey = categoryKey || name;
+                const price = calculateMasterworkPrice(priceKey, multiplier, craftType);
+                return (
+                  <>
+                    {stat !== null && (
+                      <div className={craftType === "Weapon" ? "text-red-300" : "text-green-300"}>
+                        {craftType === "Weapon" ? "DMG" : "DEF"}: {craftType === "Weapon" ? stat.toFixed(2) : Math.round(stat).toString()}
+                      </div>
+                    )}
+                    {price !== null && (
+                      <div style={{ color: '#F4E4BC' }}>
+                        ${price >= 1000 ? price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : price.toFixed(2)}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-600"></div>
             </div>
           )}
@@ -587,6 +628,24 @@ const loadedImageCache = new Set<string>();
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-50 shadow-lg">
             <div className="font-semibold text-zinc-100">{name}</div>
             <div className="text-green-400 font-medium">{(chance * 100).toFixed(2)}%</div>
+            {multiplier !== undefined && craftType && name && (() => {
+              const stat = calculateMasterworkStat(name, multiplier, craftType);
+              const price = calculateMasterworkPrice(name, multiplier, craftType);
+              return (
+                <>
+                  {stat !== null && (
+                    <div className={craftType === "Weapon" ? "text-red-300" : "text-green-300"}>
+                      {craftType === "Weapon" ? "DMG" : "DEF"}: {craftType === "Weapon" ? stat.toFixed(2) : Math.round(stat).toString()}
+                    </div>
+                  )}
+                  {price !== null && (
+                    <div style={{ color: '#F4E4BC' }}>
+                      ${price >= 1000 ? price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : price.toFixed(2)}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-600"></div>
           </div>
         )}
@@ -903,8 +962,8 @@ const loadedImageCache = new Set<string>();
             {/* Multiplier hint - larger on mobile */}
             <span className={`absolute z-10 font-bold ${
                 isMobile 
-                    ? 'bottom-0.5 right-0.5 text-[10px] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]' 
-                    : 'bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[6px] sm:text-[7px] md:text-[8px] text-zinc-300'
+                    ? 'bottom-0.5 right-0.5 text-[12px] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]' 
+                    : 'bottom-0.5 right-0.5 sm:bottom-0.5 sm:right-1 text-[8px] sm:text-[9px] md:text-[11px] text-zinc-300'
             }`}>{data.multiplier}x</span>
         </button>
     );
@@ -985,10 +1044,14 @@ const loadedImageCache = new Set<string>();
 
     return (
         <div
-            className={`bg-black/70 border border-zinc-600 rounded-sm px-3 sm:px-4 py-2 sm:py-2.5 text-center w-full z-10 transition-all duration-500 ease-out ${
+            className={`bg-black/70 border border-zinc-600 px-3 sm:px-4 py-2 sm:py-2.5 text-center w-full z-10 transition-all duration-500 ease-out corner-decoration ${
                 isVisible ? 'opacity-100 transform-none' : 'opacity-0 transform translate-y-2'
             }`}
         >
+            <div className="corner-decor-top-left border-zinc-600"></div>
+            <div className="corner-decor-top-right border-zinc-600"></div>
+            <div className="corner-decor-bottom-left border-zinc-600"></div>
+            <div className="corner-decor-bottom-right border-zinc-600"></div>
             <div className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-wider mb-0.5">
                 Predicted {craftType}
             </div>
@@ -1005,6 +1068,9 @@ const loadedImageCache = new Set<string>();
                             alt={`${predictedItem?.type || 'item'} variation`}
                             name={item.name}
                             chance={item.chance}
+                            multiplier={results?.combinedMultiplier || 0}
+                            craftType={craftType}
+                            categoryKey={item.categoryKey}
                         />
                     ))}
                 </div>
@@ -1056,7 +1122,11 @@ const loadedImageCache = new Set<string>();
         />
         
         {/* Modal Content */}
-        <div className="relative w-full max-w-sm bg-zinc-900 border-2 border-zinc-700 rounded-lg shadow-2xl animate-fade-in max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="relative w-full max-w-sm bg-zinc-900 border-2 border-zinc-700 shadow-2xl animate-fade-in max-h-[80vh] overflow-hidden flex flex-col corner-decoration">
+          <div className="corner-decor-top-left border-zinc-700"></div>
+          <div className="corner-decor-top-right border-zinc-700"></div>
+          <div className="corner-decor-bottom-left border-zinc-700"></div>
+          <div className="corner-decor-bottom-right border-zinc-700"></div>
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b border-zinc-700 bg-zinc-800/50">
             <h3 className="text-orange-400 font-bold uppercase text-sm tracking-wide flex items-center gap-2">
@@ -1076,7 +1146,11 @@ const loadedImageCache = new Set<string>();
             {traits && traits.length > 0 ? (
               <div className="grid grid-cols-1 gap-2">
                 {traits.map((tr: { ore: string, lines: string[] }, idx: number) => (
-                  <div key={idx} className="text-xs text-zinc-300 bg-white/5 p-3 rounded border border-white/10">
+                  <div key={idx} className="text-xs text-zinc-300 bg-white/5 p-3 border border-white/10 corner-decoration relative">
+                    <div className="corner-decor-top-left border-white/10"></div>
+                    <div className="corner-decor-top-right border-white/10"></div>
+                    <div className="corner-decor-bottom-left border-white/10"></div>
+                    <div className="corner-decor-bottom-right border-white/10"></div>
                     <div className="text-orange-300 font-bold mb-1.5 text-sm">{tr.ore || 'Generic'}</div>
                     <div className="space-y-1">
                       {tr.lines.map((l: string, i: number) => (
@@ -1309,16 +1383,20 @@ const loadedImageCache = new Set<string>();
             }`}>
                 
                 {/* LEFT PANEL: Forge Chances - Order 4 on mobile (bottom), Order 1 on desktop */}
-                <div className={`bg-black/80 border-2 border-zinc-700 rounded-sm flex flex-col relative ${
+                <div className={`bg-black/80 border-2 border-zinc-700 flex flex-col relative corner-decoration ${
                   isMobile 
                     ? 'h-[350px] order-4' 
                     : 'h-[400px] sm:h-[500px] md:h-[600px] lg:h-full lg:max-h-[800px] order-2 lg:order-1'
                 }`}>
-                    <div className="p-2 sm:p-3 border-b-2 border-zinc-700 bg-zinc-900/90">
+                    <div className="corner-decor-top-left border-zinc-700"></div>
+                    <div className="corner-decor-top-right border-zinc-700"></div>
+                    <div className="corner-decor-bottom-left border-zinc-700"></div>
+                    <div className="corner-decor-bottom-right border-zinc-700"></div>
+                    <div className="p-2 sm:p-3 border-b-2 border-zinc-700 bg-zinc-900/90 relative z-0 pointer-events-none">
                         <h2 className="text-base sm:text-lg md:text-xl font-bold text-white uppercase tracking-wide">Forge Chances</h2>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-3 sm:space-y-4">
+                    <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-3 sm:space-y-4 relative z-10">
                         {craftType === "Armor" ? (() => {
                             // Group items by categoryKey (Light Helmet, Medium Chestplate, etc.)
                             const armorByCategory = getArmorItemsByCategory();
@@ -1329,16 +1407,16 @@ const loadedImageCache = new Set<string>();
                                 const categoryChance = results?.odds?.[item.categoryKey] || 0;
                                 const { chance, ratio } = getItemChance(item.name, item.categoryKey, categoryChance, "Armor");
                                 
-                                if (!categoryGroups[item.categoryKey]) {
-                                    categoryGroups[item.categoryKey] = [];
-                                }
-                                
-                                categoryGroups[item.categoryKey].push({
-                                    name: item.name,
-                                    image: `/items/${item.image}.png`,
-                                    chance: chance,
-                                    ratio: ratio
-                                });
+                                                if (!categoryGroups[item.categoryKey]) {
+                                                    categoryGroups[item.categoryKey] = [];
+                                                }
+                                                
+                                                categoryGroups[item.categoryKey].push({
+                                                    name: item.name,
+                                                    image: item.image, // Already has version parameter
+                                                    chance: chance,
+                                                    ratio: ratio
+                                                });
                             });
                             
                             // Convert to array and sort by total category chance
@@ -1355,12 +1433,12 @@ const loadedImageCache = new Set<string>();
                                 return (
                                     <div 
                                         key={category.categoryKey} 
-                                        className={`opacity-90 transition-all duration-300 ${
+                                        className={`opacity-90 transition-all duration-300 relative ${
                                             isNewTop ? 'top-item-animation' : ''
                                         }`}
                                     >
                                         {/* Category Header */}
-                                        <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+                                        <div className="flex justify-between items-center mb-1 sm:mb-1.5 relative z-0">
                                             <span className="text-zinc-300 text-xs sm:text-sm font-medium">{category.categoryKey}</span>
                                             <span className={`text-xs sm:text-sm font-bold flex-shrink-0 ${category.categoryChance > 0 ? 'text-green-400' : 'text-zinc-600'}`}>
                                                 ({(category.categoryChance * 100).toFixed(0)}%)
@@ -1368,7 +1446,11 @@ const loadedImageCache = new Set<string>();
                                         </div>
                                         
                                         {/* Variation Slots */}
-                                        <div className={`bg-zinc-800/50 border border-zinc-700 rounded-sm p-1.5 sm:p-2 mb-1 flex gap-1.5 sm:gap-2 ${category.categoryChance > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
+                                        <div className={`bg-zinc-800/50 border border-zinc-700 p-1.5 sm:p-2 mb-1 flex gap-1.5 sm:gap-2 relative corner-decoration ${category.categoryChance > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
+                                            <div className={`corner-decor-top-left ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-top-right ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-bottom-left ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-bottom-right ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
                                             {category.items.map((item, itemIndex) => (
                                                 <div 
                                                     key={item.name}
@@ -1387,9 +1469,27 @@ const loadedImageCache = new Set<string>();
                                                         {item.ratio}
                                                     </span>
                                                     {/* Tooltip on hover */}
-                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-50 shadow-lg">
+                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-[9999] shadow-lg">
                                                         <div className="font-semibold text-zinc-100">{item.name}</div>
                                                         <div className="text-green-400 font-medium">{(item.chance * 100).toFixed(2)}%</div>
+                                                        {results?.combinedMultiplier !== undefined && (() => {
+                                                          const stat = calculateMasterworkStat(item.name, results.combinedMultiplier, "Armor");
+                                                          const price = calculateMasterworkPrice(category.categoryKey, results.combinedMultiplier, "Armor");
+                                                          return (
+                                                            <>
+                                                              {stat !== null && (
+                                                                <div className="text-green-300">
+                                                                  DEF: {Math.round(stat).toString()}
+                                                                </div>
+                                                              )}
+                                                              {price !== null && (
+                                                                <div style={{ color: '#F4E4BC' }}>
+                                                                  ${price >= 1000 ? price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : price.toFixed(2)}
+                                                                </div>
+                                                              )}
+                                                            </>
+                                                          );
+                                                        })()}
                                                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-600"></div>
                                                     </div>
                                                 </div>
@@ -1416,16 +1516,16 @@ const loadedImageCache = new Set<string>();
                                 const categoryChance = results?.odds?.[item.categoryKey] || 0;
                                 const { chance, ratio } = getItemChance(item.name, item.categoryKey, categoryChance, "Weapon");
                                 
-                                if (!categoryGroups[item.categoryKey]) {
-                                    categoryGroups[item.categoryKey] = [];
-                                }
-                                
-                                categoryGroups[item.categoryKey].push({
-                                    name: item.name,
-                                    image: `/weapons/${item.image}.png`,
-                                    chance: chance,
-                                    ratio: ratio
-                                });
+                                                if (!categoryGroups[item.categoryKey]) {
+                                                    categoryGroups[item.categoryKey] = [];
+                                                }
+                                                
+                                                categoryGroups[item.categoryKey].push({
+                                                    name: item.name,
+                                                    image: item.image, // Already has version parameter
+                                                    chance: chance,
+                                                    ratio: ratio
+                                                });
                             });
                             
                             // Convert to array and sort by total category chance
@@ -1442,12 +1542,12 @@ const loadedImageCache = new Set<string>();
                                 return (
                                     <div 
                                         key={category.categoryKey} 
-                                        className={`opacity-90 transition-all duration-300 ${
+                                        className={`opacity-90 transition-all duration-300 relative ${
                                             isNewTop ? 'top-item-animation' : ''
                                         }`}
                                     >
                                         {/* Category Header */}
-                                        <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+                                        <div className="flex justify-between items-center mb-1 sm:mb-1.5 relative z-0">
                                             <span className="text-zinc-300 text-xs sm:text-sm font-medium">{category.categoryKey}</span>
                                             <span className={`text-xs sm:text-sm font-bold flex-shrink-0 ${category.categoryChance > 0 ? 'text-green-400' : 'text-zinc-600'}`}>
                                                 ({(category.categoryChance * 100).toFixed(0)}%)
@@ -1455,13 +1555,17 @@ const loadedImageCache = new Set<string>();
                                         </div>
                                         
                                         {/* Variation Slots */}
-                                        <div className={`bg-zinc-800/50 border border-zinc-700 rounded-sm p-1.5 sm:p-2 mb-1 flex gap-1.5 sm:gap-2 ${category.categoryChance > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
+                                        <div className={`bg-zinc-800/50 border border-zinc-700 p-1.5 sm:p-2 mb-1 flex gap-1.5 sm:gap-2 relative z-10 corner-decoration ${category.categoryChance > 0 ? 'border-green-900/50 bg-green-900/10' : ''}`}>
+                                            <div className={`corner-decor-top-left ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-top-right ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-bottom-left ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
+                                            <div className={`corner-decor-bottom-right ${category.categoryChance > 0 ? 'border-green-900/50' : 'border-zinc-700'}`}></div>
                                             {category.items.map((item, itemIndex) => (
                                                 <div 
                                                     key={item.name}
-                                                    className="group flex-1 h-8 sm:h-10 md:h-12 flex flex-col items-center justify-center relative overflow-visible"
+                                                    className="group flex-1 h-8 sm:h-10 md:h-12 flex flex-col items-center justify-center relative overflow-visible z-20"
                                                 >
-                                                    <div className="relative w-full h-full">
+                                                    <div className="relative w-full h-full z-10">
                                                       <Image 
                                                           src={item.image} 
                                                           alt={item.name}
@@ -1471,13 +1575,31 @@ const loadedImageCache = new Set<string>();
                                                           loading="lazy"
                                                       />
                                                     </div>
-                                                    <span className="absolute bottom-0 left-0 right-0 text-[8px] sm:text-[9px] text-white text-center font-medium">
+                                                    <span className="absolute bottom-0 left-0 right-0 text-[8px] sm:text-[9px] text-white text-center font-medium z-10">
                                                         {item.ratio}
                                                     </span>
                                                     {/* Tooltip on hover */}
-                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-50 shadow-lg">
+                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-900/95 border border-zinc-600 rounded-sm text-white text-[9px] sm:text-[10px] whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out pointer-events-none z-[100] shadow-lg">
                                                         <div className="font-semibold text-zinc-100">{item.name}</div>
                                                         <div className="text-green-400 font-medium">{(item.chance * 100).toFixed(2)}%</div>
+                                                        {results?.combinedMultiplier !== undefined && (() => {
+                                                          const stat = calculateMasterworkStat(item.name, results.combinedMultiplier, "Weapon");
+                                                          const price = calculateMasterworkPrice(category.categoryKey, results.combinedMultiplier, "Weapon");
+                                                          return (
+                                                            <>
+                                                              {stat !== null && (
+                                                                <div className="text-red-300">
+                                                                  DMG: {stat.toFixed(2)}
+                                                                </div>
+                                                              )}
+                                                              {price !== null && (
+                                                                <div style={{ color: '#F4E4BC' }}>
+                                                                  ${price >= 1000 ? price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : price.toFixed(2)}
+                                                                </div>
+                                                              )}
+                                                            </>
+                                                          );
+                                                        })()}
                                                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-600"></div>
                                                     </div>
                                                 </div>
@@ -1589,10 +1711,14 @@ const loadedImageCache = new Set<string>();
                         shouldShowTraits && results?.traits && results.traits.length > 0 && (
                             <button
                                 onClick={() => setIsTraitsModalOpen(true)}
-                                className={`w-full py-2.5 px-4 rounded border bg-orange-500/20 border-orange-500/50 text-orange-400 hover:bg-orange-500/30 flex items-center justify-center gap-2 transition-opacity duration-[400ms] ${
-                                    isTraitsFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                                className={`w-full py-2.5 px-4 border bg-orange-500/20 border-orange-500/50 text-orange-400 hover:bg-orange-500/30 flex items-center justify-center gap-2 corner-decoration relative ${
+                                    isTraitsFadingOut ? 'animate-fade-out pointer-events-none' : 'animate-fade-in'
                                 }`}
                             >
+                                <div className="corner-decor-top-left border-orange-500/50"></div>
+                                <div className="corner-decor-top-right border-orange-500/50"></div>
+                                <div className="corner-decor-bottom-left border-orange-500/50"></div>
+                                <div className="corner-decor-bottom-right border-orange-500/50"></div>
                                 <EyeIcon className="w-4 h-4" />
                                 <span className="font-bold uppercase text-xs tracking-wide">
                                   View Active Traits ({results.traits.length})
@@ -1601,23 +1727,33 @@ const loadedImageCache = new Set<string>();
                         )
                     ) : (
                         /* Desktop: Show full traits panel with fade in/out animations */
-                        shouldShowTraits && results?.traits && results.traits.length > 0 && (
-                             <div className={`w-full bg-black/40 border border-white/10 rounded-lg p-2 sm:p-3 md:p-4 transition-opacity duration-[400ms] ${
-                               isTraitsFadingOut ? 'opacity-0' : 'opacity-100 animate-fade-in'
+                        shouldShowTraits && (
+                             <div className={`w-full bg-black/40 border border-white/10 p-2 sm:p-3 md:p-4 corner-decoration relative ${
+                               isTraitsFadingOut ? 'animate-fade-out' : 'animate-fade-in'
                              }`}>
+                                <div className="corner-decor-top-left border-white/10"></div>
+                                <div className="corner-decor-top-right border-white/10"></div>
+                                <div className="corner-decor-bottom-left border-white/10"></div>
+                                <div className="corner-decor-bottom-right border-white/10"></div>
                                 <h3 className="text-orange-400 font-bold mb-1.5 sm:mb-2 uppercase text-xs sm:text-sm text-center">Active Traits</h3>
-                                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                                    {results.traits.map((tr: any, idx: number) => (
-                                        <div key={idx} className="text-[10px] sm:text-xs text-zinc-300 bg-white/5 p-1.5 sm:p-2 rounded border border-white/5 text-center w-full h-full flex flex-col justify-center">
-                                            <div className="text-orange-300 font-bold mb-0.5 sm:mb-1">{tr.ore || 'Generic'}</div>
-                                            <div className="space-y-0.5">
-                                                {tr.lines.map((l: string, i: number) => (
-                                                    <div key={i} className="text-[9px] sm:text-[10px]">{l}</div>
-                                                ))}
+                                {results?.traits && results.traits.length > 0 ? (
+                                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                                        {results.traits.map((tr: any, idx: number) => (
+                                            <div key={idx} className="text-[10px] sm:text-xs text-zinc-300 bg-white/5 p-1.5 sm:p-2 border border-white/5 text-center w-full h-full flex flex-col justify-center corner-decoration relative">
+                                                <div className="corner-decor-top-left border-white/5"></div>
+                                                <div className="corner-decor-top-right border-white/5"></div>
+                                                <div className="corner-decor-bottom-left border-white/5"></div>
+                                                <div className="corner-decor-bottom-right border-white/5"></div>
+                                                <div className="text-orange-300 font-bold mb-0.5 sm:mb-1">{tr.ore || 'Generic'}</div>
+                                                <div className="space-y-0.5">
+                                                    {tr.lines.map((l: string, i: number) => (
+                                                        <div key={i} className="text-[9px] sm:text-[10px]">{l}</div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : null}
                              </div>
                         )
                     )}
@@ -1649,11 +1785,15 @@ const loadedImageCache = new Set<string>();
                 </div>
 
                 {/* RIGHT PANEL: Ore Selector - Order 3 on mobile (above forge chances), Order 3 on desktop */}
-                <div className={`bg-black/80 border-2 border-zinc-700 rounded-sm flex flex-col relative ${
+                <div className={`bg-black/80 border-2 border-zinc-700 flex flex-col relative corner-decoration ${
                   isMobile 
                     ? 'h-[280px] order-3' 
                     : 'h-[400px] sm:h-[500px] md:h-[600px] lg:h-full lg:max-h-[800px] order-3'
                 }`}>
+                    <div className="corner-decor-top-left border-zinc-700"></div>
+                    <div className="corner-decor-top-right border-zinc-700"></div>
+                    <div className="corner-decor-bottom-left border-zinc-700"></div>
+                    <div className="corner-decor-bottom-right border-zinc-700"></div>
                      <div className="p-2 sm:p-3 border-b-2 border-zinc-700 bg-zinc-900/90">
                         <div className="flex justify-between items-center mb-2 sm:mb-3">
                             <h2 className={`font-bold text-white uppercase tracking-wide ${isMobile ? 'text-sm' : 'text-base sm:text-lg md:text-xl'}`}>Select Ores</h2>
@@ -1661,7 +1801,7 @@ const loadedImageCache = new Set<string>();
                         <input 
                             type="text" 
                             placeholder="Search ores..." 
-                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+                            className="w-full bg-zinc-950 border border-zinc-700 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
